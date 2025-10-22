@@ -15,31 +15,34 @@ type Props = {
 
 export default function CocktailDetails({ cocktail, onBack }: Props) {
     return (
-        <div className="max-w-xl mx-auto p-6 mt-10 bg-white rounded-xl shadow-lg text-center">
-
-            <button
-                onClick={onBack}
-                className="mb-6 px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 transition"
-            >
-                ← Back
-            </button>
-
-            <h2 className="text-3xl font-bold mb-4 text-gray-800">{cocktail.name}</h2>
-
-            <div className="mb-4 space-y-2 text-gray-700">
-                <p><span className="font-semibold">Category:</span> {cocktail.category}</p>
-                <p><span className="font-semibold">Glass:</span> {cocktail.glass}</p>
-                <p><span className="font-semibold">Alcoholic:</span> {cocktail.alcoholic ? "Yes" : "No"}</p>
+        <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
+            {/* Back button wyrównany do lewej */}
+            <div className="mb-4">
+                <button
+                    onClick={onBack}
+                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                >
+                    Back
+                </button>
             </div>
 
-            <img
-                src={cocktail.imageUrl}
-                alt={cocktail.name}
-                className="w-48 h-48 mx-auto rounded-lg object-cover mb-4 shadow-sm"
-            />
+            {/* Reszta karty wyśrodkowana */}
+            <div className="text-center">
+                <h2 className="text-2xl font-bold mb-2">{cocktail.name}</h2>
+                <p className="text-gray-600 mb-1"><strong>Category:</strong> {cocktail.category}</p>
+                <p className="text-gray-600 mb-1"><strong>Glass:</strong> {cocktail.glass}</p>
+                <p className="text-gray-600 mb-3">
+                    <strong>Alcoholic:</strong> {cocktail.alcoholic ? "Yes" : "No"}
+                </p>
 
-            <p className="text-gray-600"><span className="font-semibold">Instructions:</span> {cocktail.instructions}</p>
+                <img
+                    src={cocktail.imageUrl}
+                    alt={cocktail.name}
+                    className="w-48 h-48 object-cover mx-auto rounded mb-4 border border-gray-200"
+                />
 
+                <p className="text-gray-700"><strong>Instructions:</strong> {cocktail.instructions}</p>
+            </div>
         </div>
     );
 }
