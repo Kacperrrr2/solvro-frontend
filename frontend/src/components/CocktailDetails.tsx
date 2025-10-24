@@ -11,12 +11,12 @@ type Cocktail = {
 type Props = {
     cocktail: Cocktail;
     onBack: () => void;
+    liked: boolean;
+    onLikeToggle: () => void;
 };
-
-export default function CocktailDetails({ cocktail, onBack }: Props) {
+export default function CocktailDetails({ cocktail, onBack, liked, onLikeToggle }: Props) {
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
-            {/* Back button wyrównany do lewej */}
             <div className="mb-4">
                 <button
                     onClick={onBack}
@@ -24,9 +24,11 @@ export default function CocktailDetails({ cocktail, onBack }: Props) {
                 >
                     Back
                 </button>
+                <button onClick={onLikeToggle} className="text-2xl">
+                    {liked ? "❤️" : "🤍"}
+                </button>
             </div>
 
-            {/* Reszta karty wyśrodkowana */}
             <div className="text-center">
                 <h2 className="text-2xl font-bold mb-2">{cocktail.name}</h2>
                 <p className="text-gray-600 mb-1"><strong>Category:</strong> {cocktail.category}</p>

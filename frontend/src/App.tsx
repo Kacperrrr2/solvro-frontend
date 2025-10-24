@@ -20,6 +20,17 @@ export default function App() {
     const [showAlcoholic, setShowAlcoholic] = useState(true);
     const [showNonAlcoholic, setShowNonAlcoholic] = useState(true);
     const [selectedCocktail, setSelectedCocktail] = useState<Cocktail | null>(null);
+    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+
+    const [likedIds, setLikedIds] = useState<number[]>(() => {
+        const saved = localStorage.getItem("likedCocktails");
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    useEffect(() => {
+        localStorage.setItem("likedCocktails", JSON.stringify(likedIds));
+    }, [likedIds]);
 
     async function loadCocktails() {
         setLoading(true);
@@ -31,11 +42,21 @@ export default function App() {
 
     useEffect(() => { loadCocktails(); }, []);
 
+    const toggleLike = (id: number) => {
+        setLikedIds((prev) =>
+            prev.includes(id)
+                ? prev.filter((x) => x !== id)
+                : [...prev, id]
+        );
+    };
+
     if (selectedCocktail) {
         return (
             <CocktailDetails
                 cocktail={selectedCocktail}
                 onBack={() => setSelectedCocktail(null)}
+                liked={likedIds.includes(selectedCocktail.id)}
+                onLikeToggle={() => toggleLike(selectedCocktail.id)}
             />
         );
     }
@@ -44,7 +65,16 @@ export default function App() {
         const matchesQuery = c.name.toLowerCase().includes(query.toLowerCase());
         const matchesAlcohol =
             (showAlcoholic && c.alcoholic) || (showNonAlcoholic && !c.alcoholic);
-        return matchesQuery && matchesAlcohol;
+        const matchesFavorite =
+            !showFavoritesOnly || likedIds.includes(c.id);
+
+        return matchesQuery && matchesAlcohol && matchesFavorite;
+    });
+
+    const sortedCocktails = [...filteredCocktails].sort((a, b) => {
+        const aLiked = likedIds.includes(a.id);
+        const bLiked = likedIds.includes(b.id);
+        return aLiked === bLiked ? 0 : aLiked ? -1 : 1;
     });
 
     return (
@@ -81,30 +111,54 @@ export default function App() {
                     />
                     Non-alcoholic
                 </label>
+
+                <label className="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        checked={showFavoritesOnly}
+                        onChange={(e) => setShowFavoritesOnly(e.target.checked)}
+                        className="accent-pink-500"
+                    />
+                    Favorites ❤️
+                </label>
             </div>
 
             {loading ? (
                 <p className="text-center text-gray-500">Loading...</p>
             ) : (
                 <ul className="space-y-3">
-                    {filteredCocktails.map(c => (
+                    {sortedCocktails.map(c => (
                         <li
                             key={c.id}
-                            onClick={() => setSelectedCocktail(c)}
-                            className="flex items-center gap-3 p-3 bg-white rounded shadow hover:bg-blue-50 cursor-pointer transition"
+                            className="flex items-center gap-3 p-3 bg-white rounded shadow hover:bg-blue-50 transition"
                         >
                             <img
                                 src={c.imageUrl}
                                 alt={c.name}
                                 className="w-12 h-12 object-cover rounded"
                             />
-                            <div className="flex-1">
+                            <div
+                                onClick={() => setSelectedCocktail(c)}
+                                className="flex-1 cursor-pointer"
+                            >
                                 <strong className="text-lg text-gray-800">{c.name}</strong>
                                 <p className="text-gray-500 text-sm">{c.category}</p>
                             </div>
-                            <span className={`px-2 py-1 text-xs rounded-full ${c.alcoholic ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                {c.alcoholic ? 'Alcoholic' : 'Non-alcoholic'}
-              </span>
+
+                            <span
+                                className={`px-2 py-1 text-xs rounded-full ${
+                                    c.alcoholic ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
+                                }`}
+                            >
+                                {c.alcoholic ? 'Alcoholic' : 'Non-alcoholic'}
+                            </span>
+
+                            <button
+                                onClick={() => toggleLike(c.id)}
+                                className="ml-2 text-xl"
+                            >
+                                {likedIds.includes(c.id) ? "❤️" : "🤍"}
+                            </button>
                         </li>
                     ))}
                 </ul>
